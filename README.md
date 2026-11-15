@@ -73,4 +73,7 @@ Executes a chained flow: **Auth → Create → Update → Verify → Delete**, w
 - **Negative scenario:** Delete without a token. Response is `403 Forbidden`. This is correct behavior, because the API blocks unauthorized deletes.
 
 ## Results
-Add the Collection Runner summary screenshot here, for example `![Runner results](screenshots/runner-results.png)`.
+Collection of Runner Summary
+![Runner summary 1](screenshots/runner-summary-1.png)
+![Runner summary 2](screenshots/runner-summary-2.png)
+![Runner summary 3](screenshots/runner-summary-3.png)

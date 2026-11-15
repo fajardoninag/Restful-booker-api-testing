@@ -88,7 +88,7 @@
       "response": []
     },
     {
-      "name": "Request",
+      "name": "Update",
       "event": [
         {
           "listen": "test",
@@ -142,7 +142,7 @@
       "response": []
     },
     {
-      "name": "Get",
+      "name": "Verify",
       "event": [
         {
           "listen": "test",
@@ -258,17 +258,22 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Invalid booking data is rejected\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 500]);\r\n});"
+              "pm.test(\"Request is rejected (4xx/5xx, not 200)\", () => pm.expect(pm.response.code).to.be.oneOf([400, 422, 500]));\r\npm.test(\"No bookingid is returned\", () => pm.expect(pm.response.text()).to.not.include(\"bookingid\"));\r\n\r\nif (pm.response.code === 500) {\r\n    console.warn(\"BUG: invalid payload causes 500 Internal Server Error instead of 400 with a validation message.\");\r\n}"
             ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"firstname\": \"\",\r\n    \"lastname\": \"\",\r\n    \"totalprice\": 1500,\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-12-01\",\r\n        \"checkout\": \"2026-12-05\"\r\n    },\r\n    \"additionalneeds\": \"Breakfast\"\r\n}",
+          "raw": "{\r\n    \"firstname\": \"OnlyFirstName\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -291,18 +296,57 @@
       "response": []
     },
     {
-      "name": "Update",
+      "name": "Update Negative",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 403 Forbidden\", () => pm.response.to.have.status(403));\r\npm.test(\"Body is 'Forbidden'\", () => pm.expect(pm.response.text()).to.include(\"Forbidden\"));"
+            ]
+          }
+        }
+      ],
       "request": {
-        "method": "GET",
-        "header": [],
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"firstname\": \"Jane\",\r\n    \"lastname\": \"Doe\",\r\n    \"totalprice\": 2500,\r\n    \"depositpaid\": false,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2026-12-10\",\r\n        \"checkout\": \"2026-12-15\"\r\n    },\r\n    \"additionalneeds\": \"Late checkout\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
         "url": {
-          "raw": ""
+          "raw": "https://restful-booker.herokuapp.com/booking/{{bookingId}}",
+          "protocol": "https",
+          "host": [
+            "restful-booker",
+            "herokuapp",
+            "com"
+          ],
+          "path": [
+            "booking",
+            "{{bookingId}}"
+          ]
         }
       },
       "response": []
     },
     {
-      "name": "Get Negative",
+      "name": "Verify Negative",
       "event": [
         {
           "listen": "test",
